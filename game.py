@@ -6,10 +6,10 @@ MAX_LAWN = 6
 MAX_BARRICADE = 10
 MAX_GARAGE = 10
 MAX_KILLS = 10
-GARAGE_LEVELS = [-1, 3, 6, 8, 10]
-LAWN_SUCCESS = 3
-BARRICADE_SUCCESS = 3
-GARAGE_SUCCESS = 5
+LEVELS_GARAGE = [-1, 3, 6, 8, 10]
+SUCCESS_LAWN = 3
+SUCCESS_BARRICADE = 3
+SUCCESS_GARAGE = 5
 
 
 class Game:
@@ -62,15 +62,22 @@ class Game:
 		exit()
 
 	def roll_lawn(self):
-		pass
+		res = self.roll_dice()
+		print(f'Lawn dice: {res}')
+		if res >= SUCCESS_LAWN and self.lawn:
+			self.add_lawn(-1)
+			self.add_kills(1)
 
 	def roll_barricade(self):
-		pass
+		res = self.roll_dice()
+		print(f'Barricade dice: {res}')
+		if res >= SUCCESS_BARRICADE:
+			self.add_barricade(1)
 
 	def roll_garage(self):
 		res = self.roll_dice()
 		print(f'Garage dice: {res}')
-		if res >= GARAGE_SUCCESS:
+		if res >= SUCCESS_GARAGE:
 			self.add_garage(1)
 
 	def roll(self):
@@ -107,7 +114,8 @@ class Game:
 				case 'info':
 					self.info()
 				case 'go':
-					self.add_lawn(bisect_left(GARAGE_LEVELS, self.garage))
+					self.add_lawn(bisect_left(LEVELS_GARAGE, self.garage))
+					self.info()
 					self.roll()
 					self.add_barricade(-self.lawn)
 				case 'add':
