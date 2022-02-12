@@ -1,5 +1,5 @@
 from bisect import bisect_left
-from random import randint
+from random import randint, seed
 
 
 MAX_LAWN = 6
@@ -49,7 +49,8 @@ class Game:
 			case 4:
 				self.add_barricade(3)
 
-	def reset(self):	
+	def reset(self):
+		seed(42)
 		self.lawn = 0
 		self.barricade = MAX_BARRICADE
 		self.garage = 0
