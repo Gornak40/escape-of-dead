@@ -37,51 +37,59 @@ class Game:
 			self.kills -= MAX_KILLS
 			self.bonus()
 
-# TODO
 	def bonus(self):
-		print('Bonus')
+		self.info(2)
+		match int(input()):
+			case 1:
+				self.lawn = 0
+			case 2:
+				self.add_garage(1)
+			case 3:
+				self.skip_spawn = 1
+			case 4:
+				self.add_barricade(3)
 
 	def reset(self):	
 		self.lawn = 0
 		self.barricade = MAX_BARRICADE
 		self.garage = 0
 		self.kills = 0
+		self.skip_spawn = 0
+		self.result = 0
 
-	def info(self):
-		print(f'Lawn: {self.lawn}')
-		print(f'Barricade: {self.barricade}')
-		print(f'Garage: {self.garage}')
-		print(f'Kills: {self.kills}')
+	def info(self, tp):
+		print(self.lawn, self.barricade, self.garage, self.kills, self.skip_spawn, self.result, tp)
 
 	def win(self):
-		print('Victory!')
+		self.result = 1
+		self.info(0)
 		exit()
 
 	def lost(self):
-		print('You lost!')
+		self.result = -1
+		self.info(0)
 		exit()
 
 	def roll_lawn(self):
 		res = self.roll_dice()
-		print(f'Lawn dice: {res}')
 		if res >= SUCCESS_LAWN and self.lawn:
 			self.add_lawn(-1)
 			self.add_kills(1)
+		self.info(-res)
 
 	def roll_barricade(self):
 		res = self.roll_dice()
-		print(f'Barricade dice: {res}')
 		if res >= SUCCESS_BARRICADE:
 			self.add_barricade(1)
+		self.info(-res)
 
 	def roll_garage(self):
 		res = self.roll_dice()
-		print(f'Garage dice: {res}')
 		if res >= SUCCESS_GARAGE:
 			self.add_garage(1)
+		self.info(-res)
 
-	def roll(self):
-		line = list(input('Distribute dices: ').upper())
+	def roll(self, line):
 		for i in range(line.count('L')):
 			self.roll_lawn()
 		for i in range(line.count('B')):
@@ -89,34 +97,21 @@ class Game:
 		for i in range(line.count('G')):
 			self.roll_garage()
 
-	def add(self, *args):
-		tp, dlt = args
-		dlt = int(dlt)
-		match tp:
-			case 'lawn':
-				self.add_lawn(dlt)
-			case 'barricade':
-				self.add_barricade(dlt)
-			case 'garage':
-				self.add_garage(dlt)
-			case 'kills':
-				self.add_kills(dlt)
+	def go(self):
+		if not self.skip_spawn:
+			self.add_lawn(bisect_left(LEVELS_GARAGE, self.garage))
+		self.skip_spawn = 0
+		self.info(1)
+		self.roll(list(input().upper()))
+		self.add_barricade(-self.lawn)
 
 	def __init__(self):
 		self.reset()
+
+	def start(self):
 		while True:
-			command = [x.strip().lower() for x in input().split() if x.strip()]
-			match command[0]:
-				case 'exit':
-					exit()
-				case 'reset':
-					self.reset()
-				case 'info':
-					self.info()
-				case 'go':
-					self.add_lawn(bisect_left(LEVELS_GARAGE, self.garage))
-					self.info()
-					self.roll()
-					self.add_barricade(-self.lawn)
-				case 'add':
-					self.add(*command[1:])
+			self.go()
+
+
+if __name__ == '__main__':
+	Game().start()
